@@ -4,9 +4,11 @@ import com.example.entity.User;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class UserService {
     private Map<String, User> users = new HashMap<>();
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$");
 
     public void createUser(String name, String email) {
         // FIXED: Added input validation as requested in review
@@ -15,6 +17,16 @@ public class UserService {
         }
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+
+        // FIXED: Added email format validation
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+        // FIXED: Added duplicate email prevention
+        if (users.values().stream().anyMatch(u -> u.getEmail().equals(email))) {
+            throw new IllegalArgumentException("User with this email already exists");
         }
 
         User user = new User(name, email);
